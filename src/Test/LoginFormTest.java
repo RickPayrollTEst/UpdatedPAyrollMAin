@@ -1,4 +1,4 @@
-package test;
+package Test;
 
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -91,6 +91,22 @@ class LoginFormTest {
         assertFalse(isValidCredentialFormat("", "password123"));
         assertFalse(isValidCredentialFormat("10001", ""));
         assertFalse(isValidCredentialFormat("abc", "password123"));
+    }
+
+    @Test
+    @DisplayName("Should validate employee ID range")
+    void testEmployeeIdRange() {
+        // Test valid employee IDs
+        assertTrue(isValidEmployeeId("10001"));
+        assertTrue(isValidEmployeeId("10034"));
+        
+        // Test edge cases
+        assertTrue(isValidEmployeeId("1"));
+        assertTrue(isValidEmployeeId("99999"));
+        
+        // Test invalid cases
+        assertFalse(isValidEmployeeId("0"));
+        assertFalse(isValidEmployeeId("-1"));
     }
 
     // Helper methods for testing login logic

@@ -1,4 +1,4 @@
-package test;
+package Test;
 
 import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -60,5 +60,58 @@ class EmployeeModelTest {
         
         // Assert
         assertEquals(3000.0, total, 0.01);
+    }
+
+    @Test
+    @DisplayName("Should calculate age correctly")
+    void testAgeCalculation() {
+        // Arrange
+        LocalDate birthDate = LocalDate.now().minusYears(25);
+        employee.setBirthday(birthDate);
+        
+        // Act
+        int age = employee.getAge();
+        
+        // Assert
+        assertEquals(25, age, "Age should be calculated correctly");
+    }
+
+    @Test
+    @DisplayName("Should return zero age for null birthday")
+    void testNullBirthdayReturnsZeroAge() {
+        // Arrange
+        employee.setBirthday(null);
+        
+        // Act
+        int age = employee.getAge();
+        
+        // Assert
+        assertEquals(0, age, "Age should be 0 if birthday is null");
+    }
+
+    @Test
+    @DisplayName("Should validate employee ID")
+    void testEmployeeIdValidation() {
+        // Test valid employee ID
+        assertDoesNotThrow(() -> employee.setEmployeeId(10001));
+        assertEquals(10001, employee.getEmployeeId());
+        
+        // Test invalid employee ID
+        assertThrows(IllegalArgumentException.class, 
+            () -> employee.setEmployeeId(-1));
+        assertThrows(IllegalArgumentException.class, 
+            () -> employee.setEmployeeId(0));
+    }
+
+    @Test
+    @DisplayName("Should validate basic salary")
+    void testBasicSalaryValidation() {
+        // Test valid salary
+        assertDoesNotThrow(() -> employee.setBasicSalary(50000.0));
+        assertEquals(50000.0, employee.getBasicSalary());
+        
+        // Test invalid salary
+        assertThrows(IllegalArgumentException.class, 
+            () -> employee.setBasicSalary(-1000.0));
     }
 }

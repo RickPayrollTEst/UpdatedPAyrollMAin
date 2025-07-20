@@ -1,4 +1,4 @@
-package test;
+package Test;
 
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -203,19 +203,146 @@ class MotorPHPayrollSystemTest {
         }
     }
 
-    // dummy setup methods
+    @Nested
+    @DisplayName("Database Connection Tests")
+    class DatabaseConnectionTests {
+
+        @Test
+        @DisplayName("Should establish database connection")
+        void testDatabaseConnection() {
+            // Act & Assert
+            assertDoesNotThrow(() -> {
+                boolean connected = DBConnection.testConnection();
+                assertTrue(connected, "Database connection should be successful");
+            });
+        }
+
+        @Test
+        @DisplayName("Should provide database information")
+        void testDatabaseInfo() {
+            // Act
+            String dbInfo = DBConnection.getDatabaseInfo();
+            
+            // Assert
+            assertNotNull(dbInfo);
+            assertFalse(dbInfo.isEmpty());
+            assertTrue(dbInfo.contains("aoopdatabase_payroll"));
+        }
+    }
+
+    @Nested
+    @DisplayName("Payroll Calculator Tests")
+    class PayrollCalculatorTests {
+
+        @Test
+        @DisplayName("Should handle invalid employee ID")
+        void testInvalidEmployeeId() {
+            // Arrange
+            LocalDate periodStart = LocalDate.of(2024, 6, 1);
+            LocalDate periodEnd = LocalDate.of(2024, 6, 30);
+
+            // Act & Assert
+            assertThrows(PayrollCalculator.PayrollCalculationException.class, 
+                () -> payrollCalculator.calculatePayroll(-1, periodStart, periodEnd));
+        }
+
+        @Test
+        @DisplayName("Should handle null dates")
+        void testNullDates() {
+            // Act & Assert
+            assertThrows(PayrollCalculator.PayrollCalculationException.class, 
+                () -> payrollCalculator.calculatePayroll(10001, null, LocalDate.now()));
+            
+            assertThrows(PayrollCalculator.PayrollCalculationException.class, 
+                () -> payrollCalculator.calculatePayroll(10001, LocalDate.now(), null));
+        }
+
+        @Test
+        @DisplayName("Should handle invalid date range")
+        void testInvalidDateRange() {
+            // Arrange
+            LocalDate periodStart = LocalDate.of(2024, 6, 30);
+            LocalDate periodEnd = LocalDate.of(2024, 6, 1); // End before start
+
+            // Act & Assert
+            assertThrows(PayrollCalculator.PayrollCalculationException.class, 
+                () -> payrollCalculator.calculatePayroll(10001, periodStart, periodEnd));
+        }
+    }
+
+    @Nested
+    @DisplayName("Model Validation Tests")
+    class ModelValidationTests {
+
+        @Test
+        @DisplayName("Should validate attendance model")
+        void testAttendanceValidation() {
+            // Arrange
+            Attendance attendance = new Attendance();
+            
+            // Act & Assert
+            assertAll("Attendance validation",
+                () -> assertThrows(IllegalArgumentException.class, 
+                    () -> attendance.setEmployeeId(-1)),
+                () -> assertThrows(IllegalArgumentException.class, 
+                    () -> attendance.setDate(null)),
+                () -> assertDoesNotThrow(() -> {
+                    attendance.setEmployeeId(10001);
+                    attendance.setDate(Date.valueOf(LocalDate.now()));
+                    attendance.setLogIn(Time.valueOf(LocalTime.of(8, 0)));
+                    attendance.setLogOut(Time.valueOf(LocalTime.of(17, 0)));
+                })
+            );
+        }
+
+        @Test
+        @DisplayName("Should validate payroll model")
+        void testPayrollValidation() {
+            // Arrange
+            Payroll payroll = new Payroll();
+            
+            // Act & Assert
+            assertAll("Payroll validation",
+                () -> assertDoesNotThrow(() -> payroll.setEmployeeId(10001)),
+                () -> assertThrows(IllegalArgumentException.class, 
+                    () -> payroll.setMonthlyRate(-1000.0)),
+                () -> assertThrows(IllegalArgumentException.class, 
+                    () -> payroll.setDaysWorked(-1)),
+                () -> assertThrows(IllegalArgumentException.class, 
+                    () -> payroll.setOvertimeHours(-1.0))
+            );
+        }
+    }
+
+    // Helper setup methods
     private void setupTestEmployee() {
         testEmployee = new Employee();
+        testEmployee.setEmployeeId(10001);
         testEmployee.setFirstName("Test");
         testEmployee.setLastName("User");
-        testEmployee.setEmployeeId(1);
+        testEmployee.setBasicSalary(50000.0);
+        testEmployee.setPosition("Test Position");
+        testEmployee.setStatus("Regular");
+        testEmployee.setRiceSubsidy(1500.0);
+        testEmployee.setPhoneAllowance(1000.0);
+        testEmployee.setClothingAllowance(800.0);
     }
 
     private void setupTestAttendance() {
         testAttendance = new Attendance();
+        testAttendance.setEmployeeId(10001);
+        testAttendance.setDate(Date.valueOf(LocalDate.now()));
+        testAttendance.setLogIn(Time.valueOf(LocalTime.of(8, 0)));
+        testAttendance.setLogOut(Time.valueOf(LocalTime.of(17, 0)));
     }
 
     private void setupTestPayroll() {
         testPayroll = new Payroll();
+        testPayroll.setEmployeeId(10001);
+        testPayroll.setMonthlyRate(50000.0);
+        testPayroll.setDaysWorked(22);
+        testPayroll.setGrossPay(50000.0);
+        testPayroll.setTotalDeductions(10000.0);
+        testPayroll.setNetPay(40000.0);
     }
 }
