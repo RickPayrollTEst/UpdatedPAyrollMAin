@@ -1,0 +1,22 @@
+<!-- JasperReports Dependencies -->
+<dependency>
+    <groupId>net.sf.jasperreports</groupId>
+    <artifactId>jasperreports</artifactId>
+    <version>6.20.6</version>
+</dependency>
+
+<!-- JUnit 5 Dependencies -->
+<dependency>
+    <groupId>org.junit.jupiter</groupId>
+    <artifactId>junit-jupiter</artifactId>
+    <version>5.9.2</version>
+    <scope>test</scope>
+</dependency>
+
+<!-- Mockito for Mocking -->
+<dependency>
+    <groupId>org.mockito</groupId>
+    <artifactId>mockito-core</artifactId>
+    <version>5.1.1</version>
+    <scope>test</scope>
+</dependency>
